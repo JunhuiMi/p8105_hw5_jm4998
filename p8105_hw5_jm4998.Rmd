@@ -1,7 +1,7 @@
 ---
 title: "P8105 Homework 3"
 author: "Junhui Mi"
-date: "2019/11/4"
+date: "2019/11/9"
 output: github_document
 ---
 
@@ -80,9 +80,13 @@ observation_data %>%
   labs(title = "Spaghetti Plot of Experiment Arms and Control Arms")
 ```
 
+Comment:
+
+The longitudinal data in control group does not change over time, and longitudinal data in exprimental group increases significantly as time passes. In first two weeks the longitudinal data in experimental group is close to that in control group. But as time pass, the longitudinal data in experimental group is significanty higher than that in control group. 
+
 # Problem 3
 
-```{r}
+```{r, cache = TRUE}
 set.seed(1)
 
 sim_regression = function(n = 30, beta0 = 2, beta1) {
