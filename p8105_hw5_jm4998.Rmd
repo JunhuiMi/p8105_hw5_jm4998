@@ -51,10 +51,13 @@ iris_without_missing_tibble = map_dfr(iris_with_missing, replace_missing)
 iris_without_missing_tibble
 ```
 
+This function replaces missing values in "iris_with_missing". "iris_without_missing_list" returns a list of 5, while "iris_without_missing_tibble" turns the list into a tibble.
 
 # Problem 2
 
 ```{r}
+filename = list.files("./data") %>% as_tibble()
+
 con_exp = list.files("./data", full.names = TRUE)
 
 load_and_tidy = function(path) {
@@ -82,10 +85,11 @@ observation_data %>%
 
 Comment:
 
-The longitudinal data in control group does not change over time, and longitudinal data in exprimental group increases significantly as time passes. In first two weeks the longitudinal data in experimental group is close to that in control group. But as time pass, the longitudinal data in experimental group is significanty higher than that in control group. 
+From the plot above we can see that data in control group does not change over time, but experimental group data increases significantly over time
 
 # Problem 3
 
+Generate datasets
 ```{r, cache = TRUE}
 set.seed(1)
 
@@ -112,7 +116,9 @@ output =
     estimate_df = map(output_list, bind_rows)) %>% 
   select(-output_list) %>% 
   unnest(estimate_df)
+```
 
+```{r}
 output %>% 
   filter(p_value < 0.05) %>%
   group_by(beta1_value) %>%
@@ -120,10 +126,17 @@ output %>%
   ggplot(aes(x = beta1_value, y = proportion)) + 
     geom_point() + geom_smooth(se = FALSE) +
   scale_x_continuous(breaks = c(0,1,2,3,4,5,6)) +
+  geom_text(aes(label = round(proportion, digits = 2))) +
   labs(title = "Association between effect size and power", 
        x = "true value of beta1",
        y = "proportion of rejected nulls")
+```
 
+Comment:
+
+From the plot we can see that as beta1 true value increases, the proportion of rejecting the nulls increases. This means that as effect size increases, power of the test increases. (Effect size is equal to $\frac{beta1 - 0}{sd}$")
+
+```{r}
 beta1_estimate = output %>%
   group_by(beta1_value) %>%
   summarize(average_beta1_hat = mean(beta1_hat))
@@ -133,12 +146,10 @@ ggplot(data = beta1_estimate,
     geom_point() + geom_smooth(se = FALSE) +
   scale_x_continuous(breaks = c(0,1,2,3,4,5,6)) +
   scale_y_continuous(breaks = c(0,1,2,3,4,5,6)) +
+  geom_text(aes(label = round(average_beta1_hat, digits = 2))) +
   labs(title = "Plot of beta1 estimation", 
        x = "true value of beta1",
-       y = "average estimation of beta1") +
-  viridis::scale_color_viridis(
-    name = "sample scale", 
-    discrete = TRUE) 
+       y = "average estimation of beta1")
 
 output %>%
   filter(p_value < 0.05) %>%
@@ -152,6 +163,7 @@ output %>%
              color = "black") +
   scale_x_continuous(breaks = c(0,1,2,3,4,5,6)) +
   scale_y_continuous(breaks = c(0,1,2,3,4,5,6)) +
+  geom_text(aes(label = round(average_beta1_hat_rejected, digits = 2))) +
   labs(title = "Plot of beta1 estimation which the null was rejected", 
        x = "true value of beta1",
        y = "average estimation of beta1 which the null was rejected")
